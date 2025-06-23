@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { TextField, Button, Box, Typography, List, ListItem, ListItemText, Paper } from '@mui/material';
 import { generateShortCode, validateURL } from './Helper';
@@ -28,7 +27,17 @@ export default function Shortener() {
             return;
         }
 
-        const newLink = { code: finalCode, original: url };
+        const createdAt = new Date().toISOString();
+        const expiresAt = new Date(Date.now() + 30 * 60000).toISOString();
+        const newLink = {
+            code: finalCode,
+            original: url,
+            createdAt,
+            expiresAt,
+            clickCount: 0,
+            clicks: []
+        };
+
         const updated = [...existing, newLink];
         localStorage.setItem('short_links', JSON.stringify(updated));
         logEvent('shorten', 'Created short link', newLink);
@@ -39,15 +48,16 @@ export default function Shortener() {
     };
 
     return (
-        <div className="bg-[#f4f6fa] min-h-screen py-10 px-4">
+        <div className='shortener-container p-4'>
             <Box
                 sx={{
                     maxWidth: 600,
                     margin: '0 auto',
-                    backgroundColor: '#fff',
+                    backgroundColor: '#ffffff',
                     p: 4,
                     borderRadius: 3,
                     boxShadow: 3,
+                    mt: 4
                 }}
             >
                 <Typography variant="h4" textAlign="center" gutterBottom>
@@ -91,7 +101,7 @@ export default function Shortener() {
                                                 {`http://localhost:3000/${link.code}`}
                                             </a>
                                         }
-                                        secondary={link.original}
+                                        secondary={`Original: ${link.original}\nCreated: ${new Date(link.createdAt).toLocaleString()} | Expires: ${new Date(link.expiresAt).toLocaleString()} | Clicks: ${link.clickCount}`}
                                     />
                                 </ListItem>
                             ))}
